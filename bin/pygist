@@ -1,0 +1,39 @@
+#!/usr/local/bin/python3
+import click
+import requests
+import json
+import os
+
+@click.command()
+@click.option('--username', prompt=True)
+@click.option('-v', '--verbose', count=True)
+@click.option('-p', '--private', count=True)
+@click.option('--description', '-d', default='')
+@click.password_option('--password', prompt=True, hide_input=True,
+                       confirmation_prompt=False)
+@click.argument('f', type=click.Path(exists=True))
+def post_gist(username, password, verbose, f, private, description):
+    filename = os.path.basename(f)
+    with open(f, 'r') as fp:
+        content  = fp.read()
+        if verbose:
+            click.echo(content)
+
+        r = requests.post( 'https://api.github.com/gists'
+                          , json.dumps({
+                                         'files': {filename:
+                                                   {'content':content}},
+                                         'description': description,
+                                         'public': not private
+                                        })
+                          , auth=requests.auth.HTTPBasicAuth(username,
+                                                             password)
+                         )
+        rjson = r.json()
+        if 'html_url' in rjson:
+            click.echo(rjson['html_url'])
+        elif 'message' in rjson:
+            click.echo(rjson['message'])
+
+if __name__=='__main__':
+    post_gist()
