@@ -15,7 +15,7 @@ Just clone this repository and install it:
 
 ```
 git clone https://github.com/kanales/pygist
-pip install pygist
+pip install ./pygist
 ```
 
 ## How to use
